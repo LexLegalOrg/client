@@ -1,0 +1,20 @@
+.footer{
+    background: $navy-deep;
+    color: $light;
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    align-items: center;
+    
+    &-col{
+        padding: 20px;
+        border-right: 1px solid transparentize($light, .8);
+        &:last-child{
+            border-right: none;
+        }
+    }
+    
+}

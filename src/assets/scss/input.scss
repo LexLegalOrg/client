@@ -1,0 +1,35 @@
+.form{
+    &-controller{
+        &-m{
+            margin: $px;
+
+        }
+        margin: abs($px*2) 0px;
+        label{
+            font-size: 18px;
+            line-height: 18px;
+            font-weight: 500;
+            color: $dark;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="url"],
+        input[type="date"],
+        input[type="color"]{
+            border-radius: 20px;
+            padding: 11px 18px 11px 18px;
+            font-size: 18px;
+            font-family: $font_display;
+            width: 100%;
+            @include transition(.25 ease-in);
+            border: 1px solid $grey;
+            &:focus {
+                outline: none;
+                border: 1px solid $navy-muted;
+                color: $dark;
+            }
+        }
+    }
+}

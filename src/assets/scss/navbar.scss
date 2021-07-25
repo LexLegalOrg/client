@@ -1,0 +1,14 @@
+.navbar{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    &-logo{
+        background-image: $logo;
+        background-size: cover;
+        background-repeat: no-repeat;
+        
+        width: 70px;
+        height: 42px;
+    }
+}
