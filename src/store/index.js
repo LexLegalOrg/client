@@ -10,7 +10,7 @@ Vue.use(VueAxios, axios);
 const PORT = 911
 const mode = 'product' // can be 'product'
 
-let url = mode == 'dev' ? `http://localhost:${PORT}/api/` : 'http://3.69.54.156/api/api/'
+let url = mode == 'dev' ? `http://localhost:${PORT}/api/` : 'http://3.69.22.152/api/'
 Vue.axios.defaults.baseURL = url
 
 export default new Vuex.Store({
