@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import axios from "axios"
 import createPersistedState from "vuex-persistedstate";
 import VueAxios from "vue-axios"
+import {filterDataByDate} from "./modules/data.config"
 
 Vue.use(Vuex)
 Vue.use(VueAxios, axios);
@@ -15,6 +16,16 @@ Vue.axios.defaults.baseURL = url
 
 export default new Vuex.Store({
   state: {
+    account:{
+      auth: false,
+      data: {},
+      assigned:{
+        user: {}
+      }
+    },
+    plan:[],
+    myPlan:[],
+    bonus:{},
     mode: 0,
     users: [],
     leads: [],
@@ -41,6 +52,33 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    SET_LOGOUT:(state)=>{
+      state.account = {
+        auth: false,
+        data: {},
+        assigned: {
+          user: {}
+        }
+      }
+    },
+    SET_ACCOUNT:(state,data)=>{
+      state.account = {
+        auth: true,
+        data: data.data,
+        assigned:{
+          user: data.user
+        }
+      }
+    },
+    SET_PLAN_ADMIN:(state,data)=>{
+      state.plan = data
+    },
+    SET_PLAN_USER:(state,data)=>{
+      state.myPlan = data
+    },
+    SET_BONUS:(state,bonus)=>{
+      state.bonus = bonus
+    },
     SET_MODE:(state,mode)=>{
       state.mode = mode
     },
@@ -56,6 +94,21 @@ export default new Vuex.Store({
   },
 
   actions: {
+    logout: ({commit}) => {
+      commit('SET_LOGOUT')
+    },
+    getBonus: ({dispatch}) =>{
+      let options = {
+        endpoint: 'bonus/get',
+        method: 'get',
+        headers: {},
+        data: {},
+        query_params: '',
+        commit: 'SET_BONUS'
+      }
+
+      dispatch('newQuery', options)
+    },
     getUsers: ({ dispatch }) => {
       let options = {
         endpoint: 'users/active',
@@ -64,6 +117,30 @@ export default new Vuex.Store({
         data: {},
         query_params: '',
         commit: 'SET_USERS'
+      }
+
+      dispatch('newQuery', options)
+    },
+    getTasks: ({ dispatch }) => {
+      let options = {
+        endpoint: 'plan',
+        method: 'get',
+        headers: {},
+        data: {},
+        query_params: '',
+        commit: 'SET_PLAN_ADMIN'
+      }
+
+      dispatch('newQuery', options)
+    },
+    getTasksByUser: ({ dispatch }, assign_id) => {
+      let options = {
+        endpoint: `plan/user/${assign_id}`,
+        method: 'get',
+        headers: {},
+        data: {},
+        query_params: '',
+        commit: 'SET_PLAN_USER'
       }
 
       dispatch('newQuery', options)
@@ -101,7 +178,6 @@ export default new Vuex.Store({
       }
       axios(query)
         .then(res => {
-          // console.log(res)
           commit(params.commit, res.data)
         })
         .catch(err => console.log(err))
@@ -109,6 +185,30 @@ export default new Vuex.Store({
 
   },
   getters: {
+    userData: (state, dispatch) => {
+      let users = state.users 
+
+      let sorted = []
+
+      users.forEach((i) => {
+        if (i.bitrix_id != 12 && i.bitrix_id != 726) {
+          sorted.push({
+            user: i,
+            data: [
+              dispatch.leadsById(i.bitrix_id),
+              dispatch.dealsById(i.bitrix_id),
+              dispatch.wonDeals(i.bitrix_id),
+              dispatch.loadAllDataByUserID(i.bitrix_id),
+              dispatch.userMoneyInvolved(i.bitrix_id),
+
+            ],
+          });
+        } else {
+        }
+      });
+
+      return sorted;
+    },
     leadsQuantity: (state) => {
       return state.leads.length
     },
@@ -122,6 +222,19 @@ export default new Vuex.Store({
       deals.forEach(i => {
         let money = parseFloat(i.OPPORTUNITY)
         sum += money
+      })
+
+      return sum
+    },
+    userMoneyInvolved:(state) => (id) =>{
+      let sum = 0 
+
+      let deals = state.deals 
+
+      deals.forEach(item=>{
+        if(item.ASSIGNED_BY_ID == id){
+          sum += parseFloat(item.OPPORTUNITY)
+        }
       })
 
       return sum
@@ -272,7 +385,6 @@ export default new Vuex.Store({
           id == i.ASSIGNED_BY_ID && i.STAGE_ID == "WON"
         ) {
           win.second.push(i)
-          console.log(i)
         }
         else  if (
           Date.parse(i.DATE_CREATE) >= state.filter.quarter.third.from &&
@@ -319,6 +431,41 @@ export default new Vuex.Store({
           win: sortedDeals.win.length,
         }
       }
+    },
+    // SingleGraph
+    getDealSum:(state)=>{
+      let deals = state.deals
+
+      let result = []
+
+      deals.forEach(i=>{
+        if(i.CLOSEDATE != NaN){
+          let obj = {
+            year: new Date(i.CLOSEDATE).getFullYear(),
+            month: new Date(i.CLOSEDATE).getMonth(),
+            name: new Date(i.CLOSEDATE).toLocaleString('uk-UA', { month: 'short' }),
+          }
+          
+          result.push(obj)
+        }
+      })
+
+      console.log(result)
+
+      return result
+    },
+    getDataByDate: (state) => (params) => {
+
+      let deals = {
+        data: state.deals,
+        date:{
+          from: params.from,
+          to: params.to
+        }
+      }
+
+      filterDataByDate(deals)
+
     }
   },
   modules: {

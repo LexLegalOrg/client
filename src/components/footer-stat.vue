@@ -2,7 +2,7 @@
   <div class="footer">
       <div class="footer-col">
           <p>Бонусний фонд компанії</p>
-          <h2>20 000 грн</h2>
+          <h2>{{bonus.sum}} грн</h2>
       </div>
       <div class="footer-col">
           <p>Всього лідів</p>
@@ -24,9 +24,10 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 export default {
     computed:{
+        ...mapState(["bonus"]),
         ...mapGetters(["leadsQuantity", "dealsQuantity", "moneyInvolved","dealsClosed"])
     }
 }

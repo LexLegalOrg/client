@@ -1,0 +1,24 @@
+.user{
+    &-row{
+    
+    }
+    &-item{
+        display: grid;
+        grid-template-columns: abs($px*4) 1fr;
+        gap: 16px;
+        img{
+            width: 100%;
+            height: 100%;
+            max-height: abs($px*4);
+            max-width: abs($px*4);
+            box-sizing: border-box;
+            border-radius: 50%;
+        }
+        &-meta{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+    }
+}
