@@ -24,7 +24,7 @@ module.exports.chartConfig = (data) => {
         }
     }
 
-    
+
     return result
 }
 
@@ -32,7 +32,7 @@ module.exports.quarterConfig = (data, id) => {
 
     let cfg = []
 
-    if(id == 0){
+    if (id == 0) {
         cfg = [
             {
                 name: "Лідів згенеровано",
@@ -49,7 +49,7 @@ module.exports.quarterConfig = (data, id) => {
         ]
     }
 
-    if(id == 1){
+    if (id == 1) {
         cfg = [
             {
                 name: "Лідів згенеровано",
@@ -66,7 +66,7 @@ module.exports.quarterConfig = (data, id) => {
         ]
     }
 
-    if(id == 2){
+    if (id == 2) {
         cfg = [
             {
                 name: "Лідів згенеровано",
@@ -83,7 +83,7 @@ module.exports.quarterConfig = (data, id) => {
         ]
     }
 
-    if(id == 3){
+    if (id == 3) {
         cfg = [
             {
                 name: "Лідів згенеровано",
@@ -111,18 +111,58 @@ module.exports.filterDataByDate = (params) => {
         array: [],
         length: 0
     }
-    params.data.filter(item=>{
+    params.data.filter(item => {
         let from = new Date(params.date.from)
         let to = new Date(params.date.to)
-        let date = new Date(item.BEGINDATE)
+        let date = new Date(item.DATE_CLOSED)
 
         let cond = from >= date && date <= to
 
-        if(!cond){
+        if (!cond) {
             out.array.push(item)
-            out.length = out.array.length    
+            out.length = out.array.length
         }
-      })
-      console.log(out)
+    })
     return out
+}
+
+module.exports.filterDataByDateAndUserId = (params, id) => {
+    let out = {
+        array: [],
+        length: 0
+    }
+
+    let sum = 0
+
+    params.data.filter(item=>{
+        let from = new Date(params.date.from)
+        let to = new Date(params.date.to)
+        let date = new Date(item.DATE_CLOSED)
+
+        let income = params.mode.income
+        let won = params.mode.won == true && item.STAGE_ID == "WON"
+        let cond = from >= date && date <= to
+        let user = parseInt(item.ASSIGNED_BY_ID) === id
+        
+        if(!income && user && !cond && won){
+            sum = ++sum
+        }
+
+        if(income && user && !cond && !won){
+            sum += parseFloat(item.OPPORTUNITY)
+        }
+
+        if (!cond && user && !income && !won) {
+            out.array.push(item)
+            out.length = out.array.length
+        }
+    })
+
+    if(sum > 0){
+        return sum
+    }
+    else{
+        return out
+    }
+
 }

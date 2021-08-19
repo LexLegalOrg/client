@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import axios from "axios"
 import createPersistedState from "vuex-persistedstate";
 import VueAxios from "vue-axios"
-import {filterDataByDate} from "./modules/data.config"
+import {filterDataByDate,filterDataByDateAndUserId} from "./modules/data.config"
 
 Vue.use(Vuex)
 Vue.use(VueAxios, axios);
@@ -465,6 +465,65 @@ export default new Vuex.Store({
       }
 
       filterDataByDate(deals)
+
+    },
+    getDataByUserId: (state) => (params) => {
+
+      let deals = {
+        data: state.deals,
+        mode:{
+          income: false,
+          won: false,
+        },
+        date:{
+          from: params.from,
+          to: params.to
+        }
+      }
+
+      let income = {
+        data: state.deals,
+        mode:{
+          income: true,
+          won: false,
+        },
+        date:{
+          from: params.from,
+          to: params.to
+        }
+      }
+
+      let leads = {
+        data: state.leads,
+        mode:{
+          income:false,
+          won: false,
+        },
+        date:{
+          from: params.from,
+          to: params.to
+        }
+      }
+
+      let won = {
+        data: state.deals,
+        mode:{
+          income:false,
+          won: true,
+        },
+        date:{
+          from: params.from,
+          to: params.to
+        }
+      }
+      console.log(Object.getOwnPropertySymbols(won))
+      return  {
+          deals: filterDataByDateAndUserId(deals, state.account.assigned.user.bitrix_id).length,
+          leads: filterDataByDateAndUserId(leads, state.account.assigned.user.bitrix_id).length,
+        income: filterDataByDateAndUserId(income, state.account.assigned.user.bitrix_id),
+        won: filterDataByDateAndUserId(won, state.account.assigned.user.bitrix_id),
+        }
+
 
     }
   },

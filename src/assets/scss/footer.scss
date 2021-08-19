@@ -10,8 +10,11 @@
     align-items: center;
     
     &-col{
-        padding: 20px;
+        padding: 10px 20px;
         border-right: 1px solid transparentize($light, .8);
+        p{
+            margin-bottom: 0;
+        }
         &:last-child{
             border-right: none;
         }
