@@ -1,0 +1,12 @@
+.page{
+    &-overflow{
+        position: fixed;
+        top: 100px;
+        width: 100%;
+        &-inner{
+            position: relative;
+            height: 30vh;
+            overflow-y: scroll;
+        }
+    }
+}

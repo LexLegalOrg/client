@@ -22,3 +22,9 @@
         }
     }
 }
+
+.container{
+    &-height{
+        max-height: 20vh;
+    }
+}

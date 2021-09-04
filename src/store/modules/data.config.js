@@ -1,3 +1,5 @@
+const { getDeals } = require("../../../../server/controllers/deals.controller")
+
 module.exports.chartConfig = (data) => {
     // console.log(data)
     let result = {
@@ -126,43 +128,59 @@ module.exports.filterDataByDate = (params) => {
     return out
 }
 
+
+
 module.exports.filterDataByDateAndUserId = (params, id) => {
-    let out = {
-        array: [],
-        length: 0
-    }
-
+    let out = []
     let sum = 0
+    let income = params.mode.income
 
-    params.data.filter(item=>{
-        let from = new Date(params.date.from)
-        let to = new Date(params.date.to)
-        let date = new Date(item.DATE_CLOSED)
+    params.data.filter(item => {
+        let from = new Date(params.date.from),
+            to = new Date(params.date.to),
+            date_deals = new Date(item.CLOSEDATE),
+            date_leads = new Date(item.DATE_CLOSED),
+            cond_deals = from >= date_deals && date_deals <= to,
+            cond_leads = from >= date_leads && date_leads <= to,
+            user = parseInt(item.ASSIGNED_BY_ID) === id,
+            won = params.mode.won == true && item.STAGE_ID == "WON"
 
-        let income = params.mode.income
-        let won = params.mode.won == true && item.STAGE_ID == "WON"
-        let cond = from >= date && date <= to
-        let user = parseInt(item.ASSIGNED_BY_ID) === id
-        
-        if(!income && user && !cond && won){
-            sum = ++sum
-        }
+        // Default deals
+        if (!cond_deals && user) out.push(item)
 
-        if(income && user && !cond && !won){
-            sum += parseFloat(item.OPPORTUNITY)
-        }
 
-        if (!cond && user && !income && !won) {
-            out.array.push(item)
-            out.length = out.array.length
-        }
+        // Default leads
+        if (!cond_leads && user) out.push(item)
+
+        if (!cond_deals && user && income) sum += parseFloat(item.OPPORTUNITY)
+
+        if (!cond_deals && user && won) out.push(item)
+    })
+    if (income) {
+        return sum
+    } else {
+        return out.length
+    }
+}
+
+module.exports.getDataChart = (params) => {
+    let out = []
+
+    params.data.filter(item => {
+        let from = new Date(params.date.from),
+            to = new Date(params.date.to),
+            date_deals = new Date(item.CLOSEDATE),
+            date_leads = new Date(item.DATE_CLOSED),
+            cond_deals = from >= date_deals && date_deals <= to,
+            cond_leads = from >= date_leads && date_leads <= to,
+            won = params.mode.won == true && item.STAGE_ID == "WON"
+
+        if(!cond_deals) out.push([
+            new Date(date_deals).getTime(), 1
+        ])
     })
 
-    if(sum > 0){
-        return sum
-    }
-    else{
-        return out
-    }
+
+    return out
 
 }

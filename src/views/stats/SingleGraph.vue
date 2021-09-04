@@ -3,6 +3,8 @@
     <div class="row">
       <div class="col-12"></div>
       <div class="col-5">
+            <div class="text-success mt-2 mb-1">Фільтр даних за датою з: {{date.from}} до {{date.to}}</div>
+
         <table class="table">
           <thead>
             <tr>
@@ -24,13 +26,13 @@
               <td>{{dealsClosed}}</td>
               <td>{{`${moneyInvolved} грн.`}}</td>
             </tr>
-            <tr v-for="(i, index) in userData" :key="index">
-              <td>{{ i.user.bitrix_id }}</td>
-              <td>{{ `${i.user.name} ${i.user.midname}` }}</td>
-              <td>{{ i.data[0] }}</td>
-              <td>{{ i.data[1] }}</td>
-              <td>{{ i.data[2] }}</td>
-              <td>{{ `${i.data[4]} грн.` }}</td>
+            <tr v-for="(i, index) in usersGraphs" :key="index">
+              <td>{{ i.account.bitrix_id }}</td>
+              <td>{{ `${i.account.name} ${i.account.midname}` }}</td>
+              <td>{{ i.data.leads }}</td>
+              <td>{{ i.data.deals }}</td>
+              <td>{{ i.data.won }}</td>
+              <td>{{ `${i.data.income} грн.` }}</td>
             </tr>
           </tbody>
         </table>
@@ -67,59 +69,74 @@ export default {
   },
   data() {
     return {
+      usersGraphs:[],
       date: {
-        from: "",
-        to: "",
+        from: "2020-05-05",
+        to: "2021-08-24",
       },
-      series: [
-        {
-          name: "Загальна дохідність компанії",
-          data: [12, 24, 58, 68, 34, 82, 43, 12, 43, 95, 34],
-        },
-        {
-          name: "Загальна кількість угод",
-          data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 1, 2, 322],
-        },
-        {
-          name: "Закрито позитивно угод",
-          data: [1, 2, 4, 20, 25, 56, 24, 29, 49, 41, 60, 43],
-        },
-      ],
       chartOptions: {
+      series: [],
+
         chart: {
+          id: 'area-datetime',
+          type: 'area',
           height: 350,
-          type: "line",
           zoom: {
-            enabled: false,
-          },
+            autoScaleYaxis: true
+          }
+        },
+        annotations: {
+          yaxis: [{
+            y: 30,
+            borderColor: '#999',
+            label: {
+              show: true,
+              text: 'Support',
+              style: {
+                color: "#fff",
+                background: '#00E396'
+              }
+            }
+          }],
+          xaxis: [{
+            x: new Date('14 Nov 2012').getTime(),
+            borderColor: '#999',
+            yAxisIndex: 0,
+            label: {
+              show: true,
+              text: 'Rally',
+              style: {
+                color: "#fff",
+                background: '#775DD0'
+              }
+            }
+          }]
         },
         dataLabels: {
-          enabled: false,
+          enabled: false
         },
-        stroke: {
-          curve: "straight",
-        },
-        grid: {
-          row: {
-            colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-            opacity: 0.5,
-          },
+        markers: {
+          size: 0,
+          style: 'hollow',
         },
         xaxis: {
-          categories: [
-            "Січень",
-            "Лютий",
-            "Березень",
-            "Квітень",
-            "Травень",
-            "Червень",
-            "Липень",
-            "Серпень",
-            "Вересень",
-            "Жовтень",
-            "Листопад",
-            "Грудень",
-          ],
+          type: 'datetime',
+          min: new Date('01 Mar 2012').getTime(),
+          tickAmount: 6,
+        },
+        tooltip: {
+          x: {
+            format: 'dd MMM yyyy'
+          }
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.7,
+            opacityTo: 0.9,
+            stops: [0, 100]
+          }
         },
       },
     };
@@ -129,19 +146,31 @@ export default {
     ...mapGetters(["getDealSum", "userData", "leadsQuantity", "dealsQuantity", "moneyInvolved","dealsClosed"]),
   },
   methods: {
+    loadGraphs(){
+      this.chartOptions.series = [{
+        name: 'deals',
+        data: this.$store.getters.getDataForChat(this.date).deals}
+      ]
+    },
     loadData() {
-      if (this.date.from != "" && this.date.to != "") {
-        this.$store.getters.getDataByDate(this.date);
-        console.warn("loadData(): Fields are filled!");
-      } else {
-        console.error("loadData(): Fields can not be empty");
-      }
+    this.usersGraphs = []
+     let users = this.userData
 
-      console.warn("INIT loadData()");
+     users.forEach(item => {
+       let user = this.$store.getters.getDataByUserId(this.date, item.user.bitrix_id)
+      this.usersGraphs.push({
+        account: item.user,
+        data: user
+      })
+     })
+
+     console.log('Loaded with: ', this.date)
     },
   },
   mounted() {
     // this.getDealSum
+    this.loadData()
+    this.loadGraphs()
   },
 };
 </script>

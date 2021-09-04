@@ -1,6 +1,10 @@
 <template>
   <div class="container">
-    <div class="row" v-for="user in userData" :key="user.bitrix_id">
+    <div class="row">
+      <div class="colors"></div>
+    </div>
+   <div class="container-height">
+      <div class="row" v-for="user in userData" :key="user.bitrix_id">
       <div class="col">
         <div class="user-item">
           <img :src="user.user.avatar" alt="" />
@@ -18,6 +22,7 @@
       </div>
     
     </div>
+   </div>
 
   </div>
 </template>

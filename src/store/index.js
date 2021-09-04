@@ -3,29 +3,29 @@ import Vuex from 'vuex'
 import axios from "axios"
 import createPersistedState from "vuex-persistedstate";
 import VueAxios from "vue-axios"
-import {filterDataByDate,filterDataByDateAndUserId} from "./modules/data.config"
+import { filterDataByDate, filterDataByDateAndUserId, getDataChart } from "./modules/data.config"
 
 Vue.use(Vuex)
 Vue.use(VueAxios, axios);
 
 const PORT = 911
-const mode = 'product' // can be 'product'
+const mode = 'dev' // can be 'product'
 
 let url = mode == 'dev' ? `http://localhost:${PORT}/api/` : 'http://3.69.22.152/api/'
 Vue.axios.defaults.baseURL = url
 
 export default new Vuex.Store({
   state: {
-    account:{
+    account: {
       auth: false,
       data: {},
-      assigned:{
+      assigned: {
         user: {}
       }
     },
-    plan:[],
-    myPlan:[],
-    bonus:{},
+    plan: [],
+    myPlan: [],
+    bonus: {},
     mode: 0,
     users: [],
     leads: [],
@@ -52,7 +52,7 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    SET_LOGOUT:(state)=>{
+    SET_LOGOUT: (state) => {
       state.account = {
         auth: false,
         data: {},
@@ -61,25 +61,25 @@ export default new Vuex.Store({
         }
       }
     },
-    SET_ACCOUNT:(state,data)=>{
+    SET_ACCOUNT: (state, data) => {
       state.account = {
         auth: true,
         data: data.data,
-        assigned:{
+        assigned: {
           user: data.user
         }
       }
     },
-    SET_PLAN_ADMIN:(state,data)=>{
+    SET_PLAN_ADMIN: (state, data) => {
       state.plan = data
     },
-    SET_PLAN_USER:(state,data)=>{
+    SET_PLAN_USER: (state, data) => {
       state.myPlan = data
     },
-    SET_BONUS:(state,bonus)=>{
+    SET_BONUS: (state, bonus) => {
       state.bonus = bonus
     },
-    SET_MODE:(state,mode)=>{
+    SET_MODE: (state, mode) => {
       state.mode = mode
     },
     SET_USERS: (state, users) => {
@@ -94,10 +94,10 @@ export default new Vuex.Store({
   },
 
   actions: {
-    logout: ({commit}) => {
+    logout: ({ commit }) => {
       commit('SET_LOGOUT')
     },
-    getBonus: ({dispatch}) =>{
+    getBonus: ({ dispatch }) => {
       let options = {
         endpoint: 'bonus/get',
         method: 'get',
@@ -186,7 +186,7 @@ export default new Vuex.Store({
   },
   getters: {
     userData: (state, dispatch) => {
-      let users = state.users 
+      let users = state.users
 
       let sorted = []
 
@@ -226,13 +226,13 @@ export default new Vuex.Store({
 
       return sum
     },
-    userMoneyInvolved:(state) => (id) =>{
-      let sum = 0 
+    userMoneyInvolved: (state) => (id) => {
+      let sum = 0
 
-      let deals = state.deals 
+      let deals = state.deals
 
-      deals.forEach(item=>{
-        if(item.ASSIGNED_BY_ID == id){
+      deals.forEach(item => {
+        if (item.ASSIGNED_BY_ID == id) {
           sum += parseFloat(item.OPPORTUNITY)
         }
       })
@@ -298,7 +298,7 @@ export default new Vuex.Store({
 
       leads.forEach((i) => {
         //ALL
-        if(id == i.ASSIGNED_BY_ID){
+        if (id == i.ASSIGNED_BY_ID) {
           sortedLeads.all.push(i)
         }
 
@@ -336,11 +336,11 @@ export default new Vuex.Store({
 
       deals.forEach((i) => {
         //ALL
-        if(id == i.ASSIGNED_BY_ID){
+        if (id == i.ASSIGNED_BY_ID) {
           sortedDeals.all.push(i)
         }
 
-        if(id == i.ASSIGNED_BY_ID && i.STAGE_ID == "WON"){
+        if (id == i.ASSIGNED_BY_ID && i.STAGE_ID == "WON") {
           sortedDeals.win.push(i)
         }
 
@@ -350,7 +350,7 @@ export default new Vuex.Store({
           id == i.ASSIGNED_BY_ID) {
           sortedDeals.first.push(i)
         }
-       else  if (
+        else if (
           Date.parse(i.DATE_CREATE) >= state.filter.quarter.second.from &&
           Date.parse(i.DATE_CREATE) <= state.filter.quarter.second.to &&
           id == i.ASSIGNED_BY_ID
@@ -364,7 +364,7 @@ export default new Vuex.Store({
         ) {
           sortedDeals.third.push(i)
         }
-        else  if (
+        else if (
           Date.parse(i.DATE_CREATE) >= state.filter.quarter.fourth.from &&
           Date.parse(i.DATE_CREATE) <= state.filter.quarter.fourth.to &&
           id == i.ASSIGNED_BY_ID
@@ -372,7 +372,7 @@ export default new Vuex.Store({
           sortedDeals.fourth.push(i)
         }
         // SORT BY QUARTERS AND WIN
-         if (
+        if (
           Date.parse(i.DATE_CREATE) >= state.filter.quarter.first.from &&
           Date.parse(i.DATE_CREATE) <= state.filter.quarter.first.to &&
           id == i.ASSIGNED_BY_ID && i.STAGE_ID == "WON"
@@ -386,14 +386,14 @@ export default new Vuex.Store({
         ) {
           win.second.push(i)
         }
-        else  if (
+        else if (
           Date.parse(i.DATE_CREATE) >= state.filter.quarter.third.from &&
           Date.parse(i.DATE_CREATE) <= state.filter.quarter.third.to &&
           id == i.ASSIGNED_BY_ID && i.STAGE_ID == "WON"
         ) {
           win.third.push(i)
         }
-        else  if (
+        else if (
           Date.parse(i.DATE_CREATE) >= state.filter.quarter.fourth.from &&
           Date.parse(i.DATE_CREATE) <= state.filter.quarter.fourth.to &&
           id == i.ASSIGNED_BY_ID && i.STAGE_ID == "WON"
@@ -405,7 +405,7 @@ export default new Vuex.Store({
 
 
       return {
-        leads:{
+        leads: {
           quarters: {
             first: sortedLeads.first.length,
             second: sortedLeads.second.length,
@@ -414,13 +414,13 @@ export default new Vuex.Store({
           },
           all: sortedLeads.all.length
         },
-        deals:{
-          quarters:{
+        deals: {
+          quarters: {
             first: sortedDeals.first.length,
             second: sortedDeals.second.length,
             third: sortedDeals.third.length,
             fourth: sortedDeals.fourth.length,
-            won:{
+            won: {
               first: win.first.length,
               second: win.second.length,
               third: win.third.length,
@@ -433,19 +433,19 @@ export default new Vuex.Store({
       }
     },
     // SingleGraph
-    getDealSum:(state)=>{
+    getDealSum: (state) => {
       let deals = state.deals
 
       let result = []
 
-      deals.forEach(i=>{
-        if(i.CLOSEDATE != NaN){
+      deals.forEach(i => {
+        if (i.CLOSEDATE != NaN) {
           let obj = {
             year: new Date(i.CLOSEDATE).getFullYear(),
             month: new Date(i.CLOSEDATE).getMonth(),
             name: new Date(i.CLOSEDATE).toLocaleString('uk-UA', { month: 'short' }),
           }
-          
+
           result.push(obj)
         }
       })
@@ -458,24 +458,25 @@ export default new Vuex.Store({
 
       let deals = {
         data: state.deals,
-        date:{
+        date: {
           from: params.from,
           to: params.to
         }
       }
 
-      filterDataByDate(deals)
+      let data = filterDataByDate(deals)
+      return data
 
     },
-    getDataByUserId: (state) => (params) => {
+    getDataByUserId: (state) => (params, id) => {
 
       let deals = {
         data: state.deals,
-        mode:{
+        mode: {
           income: false,
           won: false,
         },
-        date:{
+        date: {
           from: params.from,
           to: params.to
         }
@@ -483,11 +484,11 @@ export default new Vuex.Store({
 
       let income = {
         data: state.deals,
-        mode:{
+        mode: {
           income: true,
           won: false,
         },
-        date:{
+        date: {
           from: params.from,
           to: params.to
         }
@@ -495,11 +496,11 @@ export default new Vuex.Store({
 
       let leads = {
         data: state.leads,
-        mode:{
-          income:false,
+        mode: {
+          income: false,
           won: false,
         },
-        date:{
+        date: {
           from: params.from,
           to: params.to
         }
@@ -507,24 +508,40 @@ export default new Vuex.Store({
 
       let won = {
         data: state.deals,
-        mode:{
-          income:false,
+        mode: {
+          income: false,
           won: true,
         },
-        date:{
+        date: {
           from: params.from,
           to: params.to
         }
       }
-      console.log(Object.getOwnPropertySymbols(won))
-      return  {
-          deals: filterDataByDateAndUserId(deals, state.account.assigned.user.bitrix_id).length,
-          leads: filterDataByDateAndUserId(leads, state.account.assigned.user.bitrix_id).length,
-        income: filterDataByDateAndUserId(income, state.account.assigned.user.bitrix_id),
-        won: filterDataByDateAndUserId(won, state.account.assigned.user.bitrix_id),
+      return {
+        deals: filterDataByDateAndUserId(deals, id),
+        leads: filterDataByDateAndUserId(leads, id),
+        income: filterDataByDateAndUserId(income, id),
+        won: filterDataByDateAndUserId(won, id),
+      }
+    },
+    getDataForChat: (state) => (params) => {
+      let deals = {
+        data: state.deals,
+        mode: {
+          income: false,
+          won: false,
+        },
+        date: {
+          from: params.from,
+          to: params.to
         }
+      }
+      
+      console.log(getDataChart(deals))
 
-
+      return {
+        deals: getDataChart(deals)
+      }
     }
   },
   modules: {

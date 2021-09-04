@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.536632bc401cbc6ef82fd93ea5eadbbd.js"
+  "/precache-manifest.3f29bd8c7aff4163479ab60ad3594003.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "lex-client"});

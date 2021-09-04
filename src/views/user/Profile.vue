@@ -39,7 +39,7 @@ export default {
   data(){
     return{
       date:{
-        from: '2021-05-18T21:26:40+03:00',
+        from: '2020-05-18T21:26:40+03:00',
         to: '2021-06-18T21:26:40+03:00'
       },
       sortedData: {}
@@ -58,7 +58,7 @@ export default {
     }
 },
   mounted(){
-    this.sortedData = this.getDataByUserId(this.date)
+    this.sortedData = this.getDataByUserId(this.date, this.account.assigned.user.bitrix_id)
   }
 }
 </script>

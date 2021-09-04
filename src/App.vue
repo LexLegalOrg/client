@@ -13,7 +13,10 @@ methods:{
   this.$store.dispatch('getLeads')
   this.$store.dispatch('getDeals')
   this.$store.dispatch('getBonus')
-    },15*1000)
+    console.log('got data')
+
+    },10*1000)
+
   }
 },
 mounted(){
